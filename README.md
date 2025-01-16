@@ -1,10 +1,14 @@
-# explorer-app
- 
-Ini adalah bagian frontend dari Explorer-app.
-Project ini menggunakan Vue 3 dengan bahasa typescript dan framework Tailwindcss
+# Frontend Explorer-app with Vue 3 Typescript and Tailwindcss
 
-1. bun install
-2. bunx prisma init
-3. edit .env dengan nama database yang sesuai
-4. bunx prisma migrate dev --name init
-5. bun dev
+## Getting Started
+```bash
+bun install
+```
+
+## Development
+To start the development server run:
+```bash
+bun run dev
+```
+
+Open http://localhost:3000/ with your browser to see the result.
