@@ -332,7 +332,7 @@ const uploadFile = async () => {
     formData.append('name', newFileName.value); // Nama file
     formData.append('file', fileToUpload.value); // Pastikan ini adalah tipe File
     formData.forEach((value, key) => {
-      console.log(key, value); // Debug payload
+      console.log(key, value);
     });
 
     // Kirim request

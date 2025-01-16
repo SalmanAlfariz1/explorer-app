@@ -51,8 +51,13 @@ export default defineComponent({
               </TransitionChild>
               <!-- Sidebar component, swap this element with another sidebar if you like -->
               <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4 ring-1 ring-white/10">
-                <div class="flex h-16 shrink-0 items-center">
+                <div class="flex h-16 shrink-0 items-center justify-between">
                   <h1 class="text-gray-400">Explorer App</h1>
+                  <!-- Tombol Tambah Folder -->
+                  <button @click="isModalOpen = true"
+                    class="ml-4 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    Tambah Folder
+                  </button>
                 </div>
                 <nav class="flex flex-1 flex-col">
                   <ul role="list" class="flex flex-1 flex-col gap-y-7">
@@ -106,8 +111,13 @@ export default defineComponent({
     <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
       <!-- Sidebar component, swap this element with another sidebar if you like -->
       <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4">
-        <div class="flex h-16 shrink-0 items-center">
+        <div class="flex h-16 shrink-0 items-center justify-between">
           <h1 class="text-gray-400">Explorer App</h1>
+          <!-- Tombol Tambah Folder -->
+          <button @click="isModalOpen = true"
+            class="ml-4 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+            Tambah Folder
+          </button>
         </div>
         <nav class="flex flex-1 flex-col">
           <ul role="list" class="flex flex-1 flex-col gap-y-7">
@@ -182,6 +192,26 @@ export default defineComponent({
         </div>
       </main>
     </div>
+
+    <!-- Modal Tambah Folder -->
+    <div v-if="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white rounded-lg p-6 shadow-lg max-w-md">
+        <h2 class="text-lg font-semibold mb-4">Buat Folder Baru</h2>
+        <!-- Input Nama Folder -->
+        <input v-model="newFolderName" type="text" placeholder="Nama Folder"
+          class="w-full p-2 border border-gray-300 rounded mb-4" />
+        <!-- Tombol Aksi -->
+        <div class="flex justify-end">
+          <button @click="isModalOpen = false" class="px-4 py-2 text-gray-700">
+            Batal
+          </button>
+          <button @click="createFolder" :disabled="isLoading"
+            class="ml-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500">
+            Simpan
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -225,6 +255,60 @@ const fetchFolderData = async (folderId: number) => {
 // Event handler ketika folder dipilih
 const handleFolderSelected = (folder: Folder) => {
   fetchFolderData(folder.id); // Panggil API berdasarkan ID folder
+};
+
+// Tipe data untuk folder
+interface Folder {
+  id: number;
+  name: string;
+  parentId: number | null;
+  children: Folder[];
+  open?: boolean;
+}
+
+// Props untuk menerima data dari komponen induk
+const props = defineProps<{ folders: Folder[] }>();
+
+// State untuk modal tambah folder
+const isModalOpen = ref(false);
+const newFolderName = ref('');
+const isLoading = ref(false);
+
+// Fungsi untuk membuat folder baru
+const createFolder = async () => {
+  if (!newFolderName.value.trim()) {
+    alert('Nama folder tidak boleh kosong.');
+    return;
+  }
+
+  try {
+    isLoading.value = true;
+
+    // Request ke API untuk membuat folder
+    const response = await apiClient.post('http://localhost:3000/api/', {
+      name: newFolderName.value,
+      parentId: null, // Root folder
+    });
+
+    if (response.data.success) {
+      alert('Folder berhasil dibuat!');
+      const newFolder = response.data.data;
+
+      // Tambahkan folder baru ke props.folders
+      props.folders.push(newFolder);
+
+      // Reset modal
+      newFolderName.value = '';
+      isModalOpen.value = false;
+    } else {
+      alert(response.data.message);
+    }
+  } catch (error) {
+    console.error('Error creating folder:', error);
+    alert('Terjadi kesalahan saat membuat folder.');
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 </script>
