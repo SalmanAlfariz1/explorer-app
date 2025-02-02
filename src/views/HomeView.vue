@@ -295,6 +295,7 @@ const createFolder = async () => {
       const newFolder = response.data.data;
 
       // Tambahkan folder baru ke props.folders
+      // eslint-disable-next-line vue/no-mutating-props
       props.folders.push(newFolder);
 
       // Reset modal
